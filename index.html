@@ -32,6 +32,7 @@
 		$( document ).ready(function(){
 			$("#allPrices").hide();
 			$("#currentPrices").hide();
+			$("#log").hide();
 
 			 var w = $(window).width();
 			 var h = $(window).height();
@@ -42,6 +43,13 @@
 				.done(function(data) {
 					parseCSV(data);
 				})
+			$('input').bind('keypress', function(e) {
+			  if ((e.keyCode || e.which) == 13) {
+			  	checkPrice();
+			    // $(this).parents('form').submit();
+			    return false;
+			  }
+			});
 		});
 		function parseCSV(data){
 			if(Object.keys(zipPrices).length > 0){
@@ -62,10 +70,32 @@
 		}
 
 		function checkPrice(){
+			$("#log").hide();
+			$("#currentPrices").hide();
+			$("#allPrices").hide();
+			var zip = $("input#zip").val().trim();
+			var pattern = new RegExp(/^\d{5}(?:[-\s]\d{4})?$/);
+			var result = pattern.test(zip);
+			console.log(result);
+			if(result ){
+				if(Object.keys(zipPrices).indexOf(zip) > -1){
+					populateTable(zip);	
+				}
+				else{
+				$("#log").show();
+				}
+
+			}
+			else{
+				$("#log").show();
+			}
+		}
+
+		function populateTable(zip){
 			$("#currentPrices").show();
 			$("#allPrices").show();
-			var zip = $("textarea#zip").val();
 			var html = "";
+
 			var cur = zipPrices[zip];
 
 			var  color;
@@ -89,8 +119,8 @@
 			html +="</tr>";
 
 			$("#priceTable").append(html);
-		}
 
+		}
 
 		function getRandomInt(min, max) {
 		  return Math.floor(Math.random() * (max - min)) + min;
@@ -101,8 +131,8 @@
 
 <body>
 <h1> Princeton Review Zipcode Lookup</h1>
-<textarea id="zip" rows="1" cols="5">
-</textarea>
+<input type="text" id="zip" rows="1" cols="5" maxlength="50">
+</input>
 
 <button type="button" onclick="checkPrice()" >Lookup Zipcode</button>
 
@@ -158,6 +188,6 @@
 			</tr>
 			</tbody>
 </table>
-
+<p id="log"> The Zip you entered is either invalid or doesnt exist in our database</p>
 </body>
 </html>
