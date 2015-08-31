@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Princeton Review Zipcode Lookup</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/snap.svg/0.3.0/snap.svg-min.js"> </script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+	
+	<style>
+	table{
+		margin:10px;
+	}
+
+	.low{
+		background-color:green;
+	}
+	.medium{
+		background-color: orange;
+	}
+	.high{
+		background-color: red;
+	}
+	</style>
+	<script>
+	var zipPrices = {};
+	var priceLookup = {
+		"1":["$ 2760","$ 3960","$ 6600"],
+		"2" :["$ 3000","$ 4320","$ 7200"],
+		"3":["$ 3240","$ 5160","$ 7800"],
+		"4":["$ 3240","$ 5160","$ 8400"]
+	}
+		$( document ).ready(function(){
+			$("#allPrices").hide();
+			$("#currentPrices").hide();
+
+			 var w = $(window).width();
+			 var h = $(window).height();
+			 var request = $.ajax({
+				type: "GET",
+				url: "https://dl.dropboxusercontent.com/u/1108171/PP-Redlining%20Princeton%20Review/prices_short.csv",
+				})
+				.done(function(data) {
+					parseCSV(data);
+				})
+		});
+		function parseCSV(data){
+			if(Object.keys(zipPrices).length > 0){
+				console.log("Prices already loaded");
+				return;
+			}
+			rows = data.replace(/\n/g,'#').split('#');
+			for (i in rows){
+				if (i === 0)continue;
+				var row = rows[i].split(",");
+				var zip = row[0];
+				var value = row[3];
+
+					priceLookup[value];
+					zipPrices[zip] = priceLookup[value];
+			}
+			console.log(zipPrices);
+		}
+
+		function checkPrice(){
+			$("#currentPrices").show();
+			$("#allPrices").show();
+			var zip = $("textarea#zip").val();
+			var html = "";
+			var cur = zipPrices[zip];
+
+			var  color;
+			
+			if(cur[0] == "$ 2760"){
+				color ="low";
+			}
+			else if(cur[0] == "$ 3000"){
+				color ="medium";
+			}
+			else if(cur[0] == "$ 3240"){
+				color ="high";
+			}
+
+			$("#priceTable").empty();
+			html +='<tr class='+color+'>';
+			html+="<td>"+zip+"</td>";
+			html+="<td>"+cur[0]+"</td>";
+			html+="<td>"+cur[1]+"</td>";
+			html+="<td>"+cur[2]+"</td>";
+			html +="</tr>";
+
+			$("#priceTable").append(html);
+		}
+
+
+		function getRandomInt(min, max) {
+		  return Math.floor(Math.random() * (max - min)) + min;
+		}
+	</script>
+</head>
+
+
+<body>
+<h1> Princeton Review Zipcode Lookup</h1>
+<textarea id="zip" rows="1" cols="5">
+</textarea>
+
+<button type="button" onclick="checkPrice()" >Lookup Zipcode</button>
+
+<table id = "currentPrices" class="pure-table pure-table-bordered prices">
+			<thead class="tableHead">
+				<tr>
+					<th> Zip</th>
+					<th> Private</th>
+					<th> Master</th>
+					<th> Premier</th>
+				</tr>
+			</thead>
+			<tbody id="priceTable">
+			</tbody>
+</table>
+
+<table id="allPrices" class="pure-table pure-table-bordered">
+			<thead class="tableHead">
+				<tr>
+					<th> Product</th>
+					<th> Private</th>
+					<th> Master</th>
+					<th> Premier</th>
+					<!-- <th> High Price</th> -->
+				</tr>
+			</thead>
+			<tbody>
+			<tr class="low"> 
+				<td>Low</td>
+				<td>$ 2760</td>
+				<td>$ 3960</td>
+				<td>$ 6600</td>
+				
+			</tr>
+			<tr class="medium">
+				<td>Medium</td>
+				<td>$ 3000</td>
+				<td>$ 4320</td>
+				<td>$ 7200</td>
+				
+			</tr>
+			<tr class="high">
+				<td>High</td>
+				<td>$ 3240</td>
+				<td>$ 5160</td>
+				<td>$ 7800</td>
+			</tr>
+			<tr class="high">
+				<td>High</td>
+				<td></td>
+				<td></td>
+				<td>$ 8400</td>
+			</tr>
+			</tbody>
+</table>
+
+</body>
+</html>
